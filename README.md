@@ -18,14 +18,6 @@ The API is hosted at [split.ankitsh.cc](https://split.ankitsh.cc/).
 - **Expenses:** create with name, amount, currency, date, members (user IDs), and payer (defaults to the caller). Equal split across members. List, get, update, and delete (creator or payer).
 - **Balances:** net amount per other user and currency. Positive `balanceAmount` means **they owe you**; negative means **you owe them**.
 
-## Identity for API calls (no full auth layer)
-
-Per the take-home spec, **assume the current user id is provided on the request**:
-
-- Set header **`X-User-Id`** to a valid user id (e.g. from `POST /user` or `POST /login` response).
-
-If **`SERVER_JWT`** is not `false`, you can still use **Bearer JWT** (e.g. after `POST /login`) instead of `X-User-Id`. If `SERVER_JWT=false`, only `X-User-Id` works for protected routes.
-
 ## Getting started
 
 ```bash
