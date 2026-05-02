@@ -37,8 +37,9 @@ let userController = {
       };
 
       const user = await User.create(payload);
+      const publicUser = await User.findByPk(user.id);
 
-      return res.status(200).json(user);
+      return res.status(200).json(publicUser);
     } catch (error) {
       next(error);
     }
@@ -116,22 +117,16 @@ let userController = {
         name: Yup.string(),
         email: Yup.string().email(),
         defaultCurrency: Yup.string().min(3).max(8),
-        oldPassword: Yup.string().min(6),
-        password: Yup.string()
-          .min(6)
-          .when("oldPassword", (oldPassword, field) => {
-            if (oldPassword) {
-              return field.required();
-            } else {
-              return field;
-            }
-          }),
-        confirmPassword: Yup.string().when("password", (password, field) => {
-          if (password) {
-            return field.required().oneOf([Yup.ref("password")]);
-          } else {
-            return field;
-          }
+        oldPassword: Yup.string().min(6).optional(),
+        password: Yup.string().when("oldPassword", {
+          is: (old) => Boolean(old),
+          then: (s) => s.min(6).required(),
+          otherwise: (s) => s.optional(),
+        }),
+        confirmPassword: Yup.string().when("password", {
+          is: (pwd) => Boolean(pwd),
+          then: (s) => s.required().oneOf([Yup.ref("password")]),
+          otherwise: (s) => s.optional(),
         }),
       });
 

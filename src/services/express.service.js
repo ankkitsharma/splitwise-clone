@@ -11,26 +11,28 @@ const routeFiles = fs
   .readdirSync(__dirname + "/../routes/")
   .filter((file) => file.endsWith(".js"));
 
-let server;
-let routes = [];
+async function buildApp() {
+  const routes = [];
+  for (const file of routeFiles) {
+    const route = await import(`../routes/${file}`);
+    const routeName = Object.keys(route)[0];
+    routes.push(route[routeName]);
+  }
+
+  const app = express();
+  app.use(bodyParser.json());
+  app.use(routes);
+  app.use(globalErrorHandler);
+  return app;
+}
 
 const expressService = {
+  buildApp,
+
   init: async () => {
     try {
-      /*
-        Loading routes automatically
-      */
-      for (const file of routeFiles) {
-        const route = await import(`../routes/${file}`);
-        const routeName = Object.keys(route)[0];
-        routes.push(route[routeName]);
-      }
-
-      server = express();
-      server.use(bodyParser.json());
-      server.use(routes);
-      server.use(globalErrorHandler);
-      server.listen(process.env.SERVER_PORT);
+      const app = await buildApp();
+      app.listen(process.env.SERVER_PORT);
       console.log("[EXPRESS] Express initialized");
     } catch (error) {
       console.log("[EXPRESS] Error during express service initialization");

@@ -37,7 +37,7 @@ const JwtService = {
 
       return request.headers.authorization.split(" ")[1];
     } catch (error) {
-      console.log("[JWT] Error getting JWT token");
+      console.log("[JWT] Error getting JWT token:", error.message);
       throw error;
     }
   },
@@ -63,7 +63,7 @@ const JwtService = {
           console.log(decoded);
           if (err != null) throw err;
           return decoded.payload;
-        }
+        },
       );
     } catch (error) {
       console.log("[JWT] Error getting JWT token");
@@ -78,7 +78,7 @@ const JwtService = {
         moment().diff("1970-01-01 00:00:00Z", "seconds") > blacklist[0].exp
       ) {
         console.log(
-          `[JWT] Removing from blacklist timed out JWT with id ${blacklist[0].jti}`
+          `[JWT] Removing from blacklist timed out JWT with id ${blacklist[0].jti}`,
         );
         blacklist.shift();
       }

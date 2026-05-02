@@ -6,24 +6,26 @@ const modelFiles = fs
   .readdirSync(__dirname + "/../models/")
   .filter((file) => file.endsWith(".js"));
 
+let sequelizeInstance = null;
+
 const sequelizeService = {
+  getSequelize: () => sequelizeInstance,
+
   init: async () => {
     try {
-      let connection = new Sequelize(databaseConfig);
+      sequelizeInstance = new Sequelize(databaseConfig);
 
-      /*
-        Loading models automatically
-      */
-     
       for (const file of modelFiles) {
         const model = await import(`../models/${file}`);
-        model.default.init(connection);
+        model.default.init(sequelizeInstance);
       }
 
-      modelFiles.map(async (file) => {
+      for (const file of modelFiles) {
         const model = await import(`../models/${file}`);
-        model.default.associate && model.default.associate(connection.models);
-      });
+        if (model.default.associate) {
+          model.default.associate(sequelizeInstance.models);
+        }
+      }
 
       console.log("[SEQUELIZE] Database service initialized");
     } catch (error) {
