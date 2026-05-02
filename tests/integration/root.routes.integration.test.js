@@ -11,10 +11,11 @@ describe("root.routes", () => {
     await resetDatabase();
   });
 
-  it("GET / returns running host and port", async () => {
+  it("GET / returns welcome message with host", async () => {
     const res = await agent.get("/").expect(200);
 
-    expect(res.body.host).toBeTruthy();
+    expect(res.type).toBe("text/plain");
+    expect(res.text).toContain("Welcome to splitwise-clone running at:");
   });
 });
 
