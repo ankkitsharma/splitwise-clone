@@ -42,6 +42,89 @@ Start the server:
 yarn dev
 ```
 
+## Docker
+
+**Development** (`docker-compose.yml`): bind-mounts the repo, runs `yarn dev`, publishes MySQL on the host. Uses the root **`Dockerfile`** (nodemon).
+
+```bash
+docker compose up --build
+```
+
+**Production** (`docker-compose.prod.yml`): builds **`Dockerfile.prod`** (production dependencies only, `yarn start`, non-root user, healthcheck). MySQL is on an internal network only; only the app port is published.
+
+```bash
+docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml --env-file .env up -d
+```
+
+Run migrations against the running stack (example):
+
+```bash
+docker compose -f docker-compose.prod.yml run --rm app yarn sequelize db:migrate
+```
+
+Fill `.env` with `DB_DIALECT=mysql`, `DB_USER` / `DB_PASS` / `DB_NAME` matching the compose MySQL service, and `MYSQL_ROOT_PASSWORD` for the database container.
+
+## Database ER diagram
+
+```mermaid
+erDiagram
+  Users {
+    int id PK
+    string name
+    string email
+    string password_hash
+    string default_currency
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  Addresses {
+    int id PK
+    string city
+    string state
+    string neighborhood
+    string country
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  UserAddress {
+    int userId FK
+    int addressId FK
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  Expenses {
+    int id PK
+    string name
+    decimal value
+    string currency
+    date date
+    int paid_by_user_id FK
+    int created_by_user_id FK
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  ExpenseSplits {
+    int id PK
+    int expense_id FK
+    int user_id FK
+    decimal share_amount
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  Users ||--o{ Expenses : pays
+  Users ||--o{ Expenses : creates
+  Expenses ||--o{ ExpenseSplits : has
+  Users ||--o{ ExpenseSplits : owes
+  Users ||--o{ UserAddress : links
+  Addresses ||--o{ UserAddress : links
+```
+
 ## API overview
 
 | Method | Path            | Description                                                                                                                      |

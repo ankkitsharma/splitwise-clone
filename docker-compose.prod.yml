@@ -1,0 +1,53 @@
+# Build: docker compose -f docker-compose.prod.yml build
+# Run:   docker compose -f docker-compose.prod.yml --env-file .env up -d
+#
+# MySQL is not published to the host by default (only the `app` service port is).
+# Run migrations once before or after start, e.g.:
+#   docker compose -f docker-compose.prod.yml run --rm app yarn sequelize db:migrate
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+    volumes:
+      - mysql_prod_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 50s
+    networks:
+      - appnet
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    image: splitwise-clone:prod
+    restart: always
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      NODE_ENV: production
+      SERVER_PORT: ${SERVER_PORT:-3000}
+    ports:
+      - "${SERVER_PORT:-3000}:${SERVER_PORT:-3000}"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - appnet
+
+volumes:
+  mysql_prod_data:
+
+networks:
+  appnet:
+    driver: bridge

@@ -1,0 +1,32 @@
+# Production image: non-root, production deps only, `yarn start` (Node + Sucrase register).
+FROM node:20-bookworm-slim
+
+RUN corepack enable \
+  && groupadd --system --gid 999 appuser \
+  && useradd --system --uid 999 --gid appuser --create-home --home-dir /home/appuser appuser \
+  && mkdir -p /home/appuser/.cache/node/corepack \
+  && chown -R appuser:appuser /home/appuser \
+  && corepack prepare yarn@1.22.22 --activate
+
+WORKDIR /app
+
+COPY package.json yarn.lock ./
+
+ENV NODE_ENV=production
+ENV HOME=/home/appuser
+ENV COREPACK_HOME=/home/appuser/.cache/node/corepack
+
+RUN yarn install --frozen-lockfile --production \
+  && chown -R appuser:appuser /app
+
+COPY --chown=appuser:appuser src ./src
+COPY --chown=appuser:appuser .sequelizerc ./.sequelizerc
+
+USER appuser
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=50s --retries=3 \
+  CMD node -e "const p=process.env.SERVER_PORT||3000;require('http').get('http://127.0.0.1:'+p+'/user',r=>{let d='';r.on('data',c=>d+=c);r.on('end',()=>process.exit(r.statusCode>=200&&r.statusCode<500?0:1))}).on('error',()=>process.exit(1))"
+
+CMD ["yarn", "start"]
