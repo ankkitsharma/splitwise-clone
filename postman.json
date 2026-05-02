@@ -1,0 +1,289 @@
+{
+	"info": {
+		"_postman_id": "8a2c1e0b-4c5d-4b2a-9e1f-splitwise-mvp",
+		"name": "splitwise-clone",
+		"description": "Splitwise MVP — set collection variables `server_url` and `user_id`. Protected calls use header `X-User-Id: {{user_id}}`.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "server_url",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "user_id",
+			"value": "1"
+		},
+		{
+			"key": "access_token",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "create user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Alice\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"password12\",\n  \"defaultCurrency\": \"USD\"\n}"
+						},
+						"url": "{{server_url}}/user"
+					}
+				},
+				{
+					"name": "me (X-User-Id)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "{{user_id}}"
+							}
+						],
+						"url": "{{server_url}}/user/me"
+					}
+				},
+				{
+					"name": "update profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{user_id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"defaultCurrency\": \"INR\",\n  \"name\": \"Alice A.\"\n}"
+						},
+						"url": "{{server_url}}/user"
+					}
+				},
+				{
+					"name": "delete my account",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "{{user_id}}"
+							}
+						],
+						"url": "{{server_url}}/user"
+					}
+				},
+				{
+					"name": "list users",
+					"request": {
+						"method": "GET",
+						"url": "{{server_url}}/user"
+					}
+				},
+				{
+					"name": "get user by id",
+					"request": {
+						"method": "GET",
+						"url": "{{server_url}}/user/1"
+					}
+				},
+				{
+					"name": "add address (JWT or X-User-Id)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{user_id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"address\": {\n    \"city\": \"Bengaluru\",\n    \"state\": \"KA\",\n    \"country\": \"IN\",\n    \"neighborhood\": \"Indiranagar\"\n  }\n}"
+						},
+						"url": "{{server_url}}/user/address"
+					}
+				}
+			]
+		},
+		{
+			"name": "expenses",
+			"item": [
+				{
+					"name": "create expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{user_id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Dinner\",\n  \"value\": 120,\n  \"currency\": \"USD\",\n  \"date\": \"2026-05-01\",\n  \"memberIds\": [1, 2],\n  \"paidByUserId\": 1\n}"
+						},
+						"url": "{{server_url}}/expenses"
+					}
+				},
+				{
+					"name": "list expenses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "{{user_id}}"
+							}
+						],
+						"url": "{{server_url}}/expenses"
+					}
+				},
+				{
+					"name": "get expense by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "{{user_id}}"
+							}
+						],
+						"url": "{{server_url}}/expenses/1"
+					}
+				},
+				{
+					"name": "update expense",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{user_id}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Dinner (updated)\",\n  \"value\": 100\n}"
+						},
+						"url": "{{server_url}}/expenses/1"
+					}
+				},
+				{
+					"name": "delete expense",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "{{user_id}}"
+							}
+						],
+						"url": "{{server_url}}/expenses/1"
+					}
+				}
+			]
+		},
+		{
+			"name": "balances",
+			"item": [
+				{
+					"name": "list balances",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "{{user_id}}"
+							}
+						],
+						"url": "{{server_url}}/balances"
+					}
+				}
+			]
+		},
+		{
+			"name": "login",
+			"item": [
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"password12\"\n}"
+						},
+						"url": "{{server_url}}/login"
+					}
+				},
+				{
+					"name": "logout",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": "{{server_url}}/logout"
+					}
+				}
+			]
+		},
+		{
+			"name": "address",
+			"item": [
+				{
+					"name": "create address",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"city\": \"Bengaluru\",\n  \"state\": \"KA\",\n  \"country\": \"IN\",\n  \"neighborhood\": \"Indiranagar\"\n}"
+						},
+						"url": "{{server_url}}/address"
+					}
+				}
+			]
+		}
+	]
+}

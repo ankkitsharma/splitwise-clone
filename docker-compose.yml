@@ -1,0 +1,48 @@
+# Development only — Node API + MySQL.
+# Copy .env.example to .env and fill values. Set DB_DIALECT=mysql for this stack.
+# The app container overrides DB_HOST to reach the database service (see `environment`).
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 40s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      NODE_ENV: development
+      SERVER_PORT: ${SERVER_PORT:-3000}
+    ports:
+      - "${SERVER_PORT:-3000}:${SERVER_PORT:-3000}"
+    volumes:
+      - .:/app
+      - app_node_modules:/app/node_modules
+    command: sh -c "yarn install && yarn dev"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_dev_data:
+  app_node_modules:
