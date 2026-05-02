@@ -5,6 +5,13 @@
 
 Backend MVP for shared expenses: **users**, **expenses** (equal split among members), and **per-person balances** by currency. Built on the [express-sequelize-boilerplate](https://github.com/gadfaria/express-sequelize-boilerplate) stack (Node.js, Express, Sequelize, MySQL/PostgreSQL/SQLite, etc.).
 
+## Hosted demo
+
+The API is hosted at [split.ankitsh.cc](https://split.ankitsh.cc/).
+
+- **Hosting**: VPS running Docker containers (`docker-compose.prod.yml` + `Dockerfile.prod`)
+- **DNS**: Cloudflare
+
 ## Features
 
 - **Users:** register with email/password, default currency, profile (`GET /user/me`), update profile, delete account (blocked if the user is still linked to expenses).
